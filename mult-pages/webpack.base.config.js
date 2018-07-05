@@ -46,24 +46,30 @@ const base = {
           loader: path.resolve("./inject-loader.js") // 开发模式使用注入代码实现html热更新，注入normalize.css
         }]
       },
-      {
-        test: /\.html$/,
-        use: [{
-          loader: 'html-loader',
-          options: {
-            interpolate: 'require'
-          }
-        }],
-      }
       // {
-      //   test: /\.pug$/,
-      //   use: ['html-loader', 'pug-html-loader']
+      //   test: /\.html$/,
+      //   use: [{
+      //     loader: 'html-loader',
+      //     options: {
+      //       interpolate: 'require'
+      //     }
+      //   }],
       // }
+      {
+        test: /\.pug$/,
+        use: ['html-loader', 'pug-html-loader']
+      }
     ],
   },
   plugins: [
     new CleanWebpackPlugin(['dist']),
     //new ExtractTextPlugin("[name].css"), // 样式抽离不支持热更新
+    new webpack.ProvidePlugin({ //自动加载模块
+      $: 'jquery',
+      _: 'lodash',
+      G2: '@antv/g2',
+      DataSet: '@antv/data-set'
+    }),
     new MiniCssExtractPlugin({
       filename: "[name].css",
       chunkFilename: "[id].css"
@@ -95,7 +101,7 @@ function buildEntriesAndHTML() {
     entries[outputfile] = "./" + item;
     htmls.push(new HtmlWebpackPlugin({
       ...config,
-      template: "./" + one.dir + "/index.html",
+      template: "./" + one.dir + "/index.pug",
       filename: outputfile === "index" ? "./index.html" : "./" + outputfile + "/index.html", // 输出html文件的路径
       chunks: [outputfile]
     }));
